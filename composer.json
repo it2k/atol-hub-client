@@ -1,0 +1,31 @@
+{
+    "name": "it2k/atol-hub-client",
+    "description": "Клиент для управления оборудованием АТОЛ HUB",
+    "keywords": [ "atol", "hub", "php"],
+    "homepage": "https://github.com/it2k/atol-hub-client",
+    "license": "MIT",
+    "type": "library",
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=5.3",
+        "symfony/dom-crawler": "~2.8",
+        "veqryn/curl": "^2.0",
+        "symfony/css-selector": "~2.8"
+    },
+    "autoload": {
+        "psr-4": {
+            "It2k\\AtolHubClient\\": "src"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    },
+    "authors": [
+        {
+            "name": "Egor Zyuskin",
+            "email": "egor@zyuskin.ru"
+        }
+    ]
+}
