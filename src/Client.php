@@ -77,7 +77,8 @@ class Client extends Curl
         $this->username = $username;
         $this->password = $password;
 
-        parent::__construct();
+        $this->cookie_file = sys_get_temp_dir().'/atol-hub-cookie-'.$host.'.txt';
+        $this->user_agent = 'atol-hub-client';
     }
 
 
@@ -89,6 +90,10 @@ class Client extends Curl
      */
     public function post($url, $vars = array(), $enctype = null)
     {
+        if (empty($vars)) {
+            $vars = array('ping' => 1);
+        }
+
         return $this->securityRequest('POST', $url, $vars);
     }
 

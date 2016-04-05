@@ -13,4 +13,4 @@ include __DIR__.'/../vendor/autoload.php';
 $config = include __DIR__.'/config.php';
 
 $client = new Client($config['host'], $config['username'], $config['password']);
-echo 'Factory number: '.$client->getFactoryNumber();
+echo 'Rebooted: '.($client->reboot()) ? 'Yes' : 'No';
