@@ -169,6 +169,24 @@ class Client extends Curl
     }
 
     /**
+     * @return bool
+     */
+    public function isNeedUpdate()
+    {
+        $apps = $this->getInstalledApplications();
+
+        if (count($apps) > 0) {
+            foreach ($apps as $name => $app) {
+                if ($app['new_version'] != '-') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return string
      */
     public function getLastCheckUpdateDate()
@@ -213,8 +231,8 @@ class Client extends Curl
 
         $crawler = $this->createCrawlerFromContent($response->body);
         try {
-//            $text = $crawler->filter('div.row > div.col-md-12 > div.form-group > div.form-group > div.alert-success')->last()->text();
-//            print '!!!'.$text.'!!!';
+            $text = $crawler->filter('div.row > div.col-md-12 > div.form-group > div.form-group > div.alert-success')->last()->text();
+            $this->lastCheckUpdateDate = substr($text, strpos($text, ':')+2, 22);
 
             $text = $crawler->filter('div.box-installed > form > table')->text();
             $text = explode("\n", $text);
