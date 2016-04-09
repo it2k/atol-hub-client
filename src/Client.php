@@ -70,12 +70,15 @@ class Client extends Curl
      * @param string $host
      * @param string $username
      * @param string $password
+     * @param int    $timeout
      */
-    public function __construct($host, $username, $password)
+    public function __construct($host, $username, $password, $timeout = 5)
     {
         $this->host = $host;
         $this->username = $username;
         $this->password = $password;
+
+        $this->options['CURLOPT_TIMEOUT'] = $timeout;
 
         $this->cookie_file = sys_get_temp_dir().'/atol-hub-cookie-'.$host.'.txt';
         $this->user_agent = 'atol-hub-client';
@@ -290,17 +293,21 @@ class Client extends Curl
      */
     private function securityRequest($method, $url, array $vars)
     {
-        $response = $this->request($method, $this->getUrl($url), $vars);
+        try {
+            $response = $this->request($method, $this->getUrl($url), $vars);
 
-        if (strpos($response->body, 'Вход на сервер настроек') > 0) {
-            if ($this->loginIn()) {
-                $response = $this->request($method, $this->getUrl($url), $vars);
-            } else {
-                throw new HttpException('Auth failure');
+            if (strpos($response->body, 'Вход на сервер настроек') > 0) {
+                if ($this->loginIn()) {
+                    $response = $this->request($method, $this->getUrl($url), $vars);
+                } else {
+                    throw new HttpException('Auth failure');
+                }
             }
-        }
 
-        return $response;
+            return $response;
+        } catch (\Exception $e) {
+            return new CurlResponse(null);
+        }
     }
 
     /**
@@ -309,12 +316,16 @@ class Client extends Curl
      */
     private function loginIn()
     {
-        $response = $this->request('POST', $this->getUrl('settings/login'), array(
-            'username' => $this->username,
-            'password' => $this->password,
-        ));
+        try {
+            $response = $this->request('POST', $this->getUrl('settings/login'), array(
+                'username' => $this->username,
+                'password' => $this->password,
+            ));
 
-        if (strpos($response->body, 'Имя пользователя и/или пароль указаны неверно') > 0) {
+            if (strpos($response->body, 'Имя пользователя и/или пароль указаны неверно') > 0) {
+                return false;
+            }
+        } catch (\Exception $e) {
             return false;
         }
 
