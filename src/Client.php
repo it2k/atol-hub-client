@@ -67,6 +67,21 @@ class Client extends Curl
     private $installedApplications = array();
 
     /**
+     * @var string
+     */
+    private $utmDataBaseVesion;
+
+    /**
+     * @var string
+     */
+    private $utmSoftwareVersion;
+
+    /**
+     * @var bool
+     */
+    private $utmIsDeleteDocuments;
+
+    /**
      * @param string $host
      * @param string $username
      * @param string $password
@@ -226,6 +241,60 @@ class Client extends Curl
         }
 
         return false;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUtmDatabaseVersion()
+    {
+        if (!$this->utmDataBaseVesion) {
+            $this->getUtmSettings();
+        }
+
+        return $this->utmDataBaseVesion;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUtmSoftwareVersion()
+    {
+        if (!$this->utmSoftwareVersion) {
+            $this->getUtmSettings();
+        }
+
+        return $this->utmSoftwareVersion;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUtmDeleteDocuments()
+    {
+        if (!$this->utmSoftwareVersion) {
+            $this->getUtmSettings();
+        }
+
+        return $this->utmIsDeleteDocuments;
+    }
+
+    private function getUtmSettings()
+    {
+        $response = $this->get('docs/Settings.html');
+
+        $crawler = $this->createCrawlerFromContent($response->body);
+
+        try {
+            $deleteDocumentsInfo = $crawler->filter('input[name="del_flag"]');
+            $this->utmIsDeleteDocuments = ($deleteDocumentsInfo->getNode(0)->getAttribute('checked') == 'checked') ? false : true;
+
+            $totalInfo = $crawler->filter('#settings-form > div > div > div > div > table:nth-child(2) td.act-data');
+            $this->utmDataBaseVesion = $totalInfo->getNode(0)->nodeValue;
+            $this->utmSoftwareVersion = $totalInfo->getNode(1)->nodeValue;
+        } catch (Exception $e) {
+            return;
+        }
     }
 
     private function getUpdateInfo()
