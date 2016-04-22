@@ -9,7 +9,6 @@
 namespace It2k\AtolHubClient;
 
 use Exception;
-use HttpException;
 use Symfony\Component\DomCrawler\Crawler;
 use veqryn\Curl\Curl;
 use veqryn\Curl\CurlException;
@@ -119,7 +118,7 @@ class Client extends Curl
      * @param string $url
      * @param array  $vars
      * @return CurlResponse
-     * @throws HttpException
+     * @throws Exception
      */
     public function get($url, $vars = array())
     {
@@ -358,7 +357,7 @@ class Client extends Curl
      * @param array $vars
      * @return CurlResponse
      * @throws CurlException
-     * @throws HttpException
+     * @throws Exception
      */
     private function securityRequest($method, $url, array $vars)
     {
@@ -369,7 +368,7 @@ class Client extends Curl
                 if ($this->loginIn()) {
                     $response = $this->request($method, $this->getUrl($url), $vars);
                 } else {
-                    throw new HttpException('Auth failure');
+                    throw new Exception('Auth failure');
                 }
             }
 
