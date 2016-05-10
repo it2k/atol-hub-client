@@ -229,6 +229,24 @@ class Client extends Curl
     }
 
     /**
+     * @return string
+     */
+    public function getUtmLog()
+    {
+        $response = $this->get('settings/log-utm');
+
+        $crawler = $this->createCrawlerFromContent($response->body);
+
+        try {
+            $log = $crawler->filter('pre');
+
+            return $log->html();
+        } catch (Exception $e) {
+            return '';
+        }
+    }
+
+    /**
      * @return bool
      */
     public function clearUtmLog()
