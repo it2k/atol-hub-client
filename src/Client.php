@@ -296,6 +296,21 @@ class Client extends Curl
         return $this->utmIsDeleteDocuments;
     }
 
+    /**
+     * @return string
+     */
+    public function getUtmVersion()
+    {
+        $response = $this->request('GET', 'http://'.$this->host.':8080');
+
+        $crawler = $this->createCrawlerFromContent($response->body);
+
+        $text = explode("\n", $crawler->filter('pre')->text());
+        list($name, $version) = explode(':', $text[0]);
+
+        return $version;
+    }
+
     private function getUtmSettings()
     {
         $response = $this->get('docs/Settings.html');
