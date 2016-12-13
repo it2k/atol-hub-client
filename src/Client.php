@@ -81,6 +81,51 @@ class Client extends Curl
     private $utmIsDeleteDocuments;
 
     /**
+     * @var int
+     */
+    private $rsaCertExpiredDaysCount;
+
+    /**
+     * @var int
+     */
+    private $gostCertExpiredDaysCount;
+
+    /**
+     * @var int
+     */
+    private $checkBuffer;
+
+    /**
+     * @var int
+     */
+    private $checkAge;
+
+    /**
+     * @var int
+     */
+    private $documentsCount;
+
+    /**
+     * @var string
+     */
+    private $internetState;
+
+    /**
+     * @var string
+     */
+    private $internetStateTime;
+
+    /**
+     * @var string
+     */
+    private $utmState;
+
+    /**
+     * @var string
+     */
+    private $utmStateTime;
+
+    /**
      * @param string $host
      * @param string $username
      * @param string $password
@@ -88,6 +133,8 @@ class Client extends Curl
      */
     public function __construct($host, $username, $password, $timeout = 5)
     {
+        parent::__construct();
+
         $this->host = $host;
         $this->username = $username;
         $this->password = $password;
@@ -297,6 +344,114 @@ class Client extends Curl
     }
 
     /**
+     * @return int
+     */
+    public function getRsaCertExpiredDaysCount()
+    {
+        if (!$this->rsaCertExpiredDaysCount) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->rsaCertExpiredDaysCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getGostCertExpiredDaysCount()
+    {
+        if (!$this->gostCertExpiredDaysCount) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->gostCertExpiredDaysCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCheckBuffer()
+    {
+        if (!$this->checkBuffer) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->checkBuffer;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCheckAge()
+    {
+        if (!$this->checkAge) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->checkAge;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDocumentsCount()
+    {
+        if (!$this->documentsCount) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->documentsCount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInternetState()
+    {
+        if (!$this->internetState) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->internetState;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInternetStateTime()
+    {
+        if (!$this->internetStateTime) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->internetStateTime;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUtmState()
+    {
+        if (!$this->utmState) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->utmState;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUtmStateTime()
+    {
+        if (!$this->utmStateTime) {
+            $this->getUtmStatistic();
+        }
+
+        return $this->utmStateTime;
+    }
+
+    /**
      * @return string
      */
     public function getUtmVersion()
@@ -324,6 +479,22 @@ class Client extends Curl
             $totalInfo = $crawler->filter('#settings-form > div > div > div > div > table:nth-child(2) td.act-data');
             $this->utmDataBaseVesion = $totalInfo->getNode(0)->nodeValue;
             $this->utmSoftwareVersion = $totalInfo->getNode(1)->nodeValue;
+        } catch (Exception $e) {
+            return;
+        }
+    }
+
+    public function getUtmStatistic()
+    {
+        $response = $this->get('docs/');
+
+        $crawler = $this->createCrawlerFromContent($response->body);
+
+        try {
+            $items = $crawler->filter('li.list-group-item > p');
+            foreach ($items as $item) {
+                $this->setVarByTitle($item->lastChild->nodeValue, $item->firstChild->nodeValue);
+            }
         } catch (Exception $e) {
             return;
         }
@@ -408,6 +579,46 @@ class Client extends Curl
             return $response;
         } catch (\Exception $e) {
             return new CurlResponse(null);
+        }
+    }
+
+    /**
+     * @param string $title
+     * @param string $value
+     */
+    private function setVarByTitle($title, $value)
+    {
+        switch (trim($title)) {
+            case 'Дней до истечения сертификата RSA:':
+                $this->rsaCertExpiredDaysCount = $value;
+                break;
+            case 'Дней до истечения сертификата ГОСТ:':
+                $this->gostCertExpiredDaysCount = $value;
+                break;
+            case 'Возраст буфера чеков:':
+                $this->checkAge = $value;
+                break;
+            case 'Размер буфера чеков:':
+                $this->checkBuffer = $value;
+                break;
+            case 'Общее количество документов:':
+                $this->documentsCount = $value;
+                break;
+            case 'Статус интернета:':
+                $this->internetState = $value;
+                break;
+            case 'Статус интернета от:':
+                $this->internetStateTime = $value;
+                break;
+            case 'Статус УТМ:':
+                $this->utmState = $value;
+                break;
+            case 'Статус УТМ от:':
+                $this->utmStateTime = $value;
+                break;
+            default:
+                //echo $title."-".$value."\n";
+                break;
         }
     }
 

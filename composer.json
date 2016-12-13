@@ -6,11 +6,12 @@
     "license": "MIT",
     "type": "library",
     "minimum-stability": "dev",
+    "prefer-stable" : true,
     "require": {
         "php": ">=5.3",
-        "symfony/dom-crawler": "~3.0",
+        "symfony/dom-crawler": "^2.8",
         "veqryn/curl": "^2.0",
-        "symfony/css-selector": "~3.0"
+        "symfony/css-selector": "^2.8"
     },
     "autoload": {
         "psr-4": {
