@@ -474,7 +474,8 @@ class Client extends Curl
 
         try {
             $deleteDocumentsInfo = $crawler->filter('input[name="del_flag"]');
-            $this->utmIsDeleteDocuments = ($deleteDocumentsInfo->getNode(0)->getAttribute('checked') == 'checked') ? false : true;
+            $node = $deleteDocumentsInfo->getNode(0);
+            $this->utmIsDeleteDocuments = ($node && $deleteDocumentsInfo->getNode(0)->getAttribute('checked') == 'checked') ? false : true;
 
             $totalInfo = $crawler->filter('#settings-form > div > div > div > div > table:nth-child(2) td.act-data');
             $this->utmDataBaseVesion = $totalInfo->getNode(0)->nodeValue;
