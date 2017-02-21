@@ -456,7 +456,11 @@ class Client extends Curl
      */
     public function getUtmVersion()
     {
-        $response = $this->request('GET', 'http://'.$this->host.':8080');
+        try {
+            $response = $this->request('GET', 'http://' . $this->host . ':8080');
+        } catch (Exception $e) {
+            return '';
+        }
 
         $crawler = $this->createCrawlerFromContent($response->body);
 
@@ -478,8 +482,8 @@ class Client extends Curl
             $this->utmIsDeleteDocuments = ($node && $deleteDocumentsInfo->getNode(0)->getAttribute('checked') == 'checked') ? false : true;
 
             $totalInfo = $crawler->filter('#settings-form > div > div > div > div > table:nth-child(2) td.act-data');
-            $this->utmDataBaseVesion = $totalInfo->getNode(0)->nodeValue;
-            $this->utmSoftwareVersion = $totalInfo->getNode(1)->nodeValue;
+            $this->utmDataBaseVesion = (isset($totalInfo->getNode(0)->nodeValue)) ? $totalInfo->getNode(0)->nodeValue : '';
+            $this->utmSoftwareVersion = (isset($totalInfo->getNode(1)->nodeValue)) ? $totalInfo->getNode(1)->nodeValue : '';
         } catch (Exception $e) {
             return;
         }
