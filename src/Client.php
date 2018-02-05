@@ -76,6 +76,11 @@ class Client extends Curl
     private $utmSoftwareVersion;
 
     /**
+     * @var string
+     */
+    private $utmVersion;
+
+    /**
      * @var bool
      */
     private $utmIsDeleteDocuments;
@@ -456,18 +461,11 @@ class Client extends Curl
      */
     public function getUtmVersion()
     {
-        try {
-            $response = $this->request('GET', 'http://' . $this->host . ':8080');
-        } catch (Exception $e) {
-            return '';
+        if (is_null($this->utmVersion)) {
+            $this->getUtmStatistic();
         }
 
-        $crawler = $this->createCrawlerFromContent($response->body);
-
-        $text = explode("\n", $crawler->filter('pre')->text());
-        list($name, $version) = explode(':', $text[0]);
-
-        return $version;
+        return $this->utmVersion;
     }
 
     private function getUtmSettings()
@@ -620,6 +618,9 @@ class Client extends Curl
                 break;
             case 'Статус УТМ от:':
                 $this->utmStateTime = $value;
+                break;
+            case 'Версия УТМ:':
+                $this->utmVersion = $value;
                 break;
             default:
                 //echo $title."-".$value."\n";
