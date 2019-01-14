@@ -493,6 +493,7 @@ class Client extends Curl
 
         $crawler = $this->createCrawlerFromContent($response->body);
 
+//        print $response->body;
         try {
             $items = $crawler->filter('li.list-group-item > p');
             foreach ($items as $item) {
@@ -591,6 +592,12 @@ class Client extends Curl
      */
     private function setVarByTitle($title, $value)
     {
+        $title = str_replace("\n", '', $title);
+
+        while (strpos($title, '  ') > 0) {
+            $title = str_replace('  ', ' ', $title);
+        }
+
         switch (trim($title)) {
             case 'Дней до истечения сертификата RSA:':
                 $this->rsaCertExpiredDaysCount = $value;
@@ -623,7 +630,7 @@ class Client extends Curl
                 $this->utmVersion = $value;
                 break;
             default:
-                //echo $title."-".$value."\n";
+                echo $title."-".$value."\n";
                 break;
         }
     }
